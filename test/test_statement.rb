@@ -3,7 +3,7 @@ require 'test/unit'
 
 class TestStatement < Test::Unit::TestCase
   def test_direct_select
-    assert_sql 'SELECT * FROM `users` ORDER BY `name`', SQLParser::Statement::DirectSelect.new(select(all, tblx(from(tbl('users')))), SQLParser::Statement::OrderBy.new(col('name')))
+    assert_sql 'SELECT * FROM `users` ORDER BY `name`', select(all, tblx(from(tbl('users')), nil, nil, nil, SQLParser::Statement::OrderBy.new(col('name'))))
   end
 
   def test_order_by
@@ -301,8 +301,8 @@ class TestStatement < Test::Unit::TestCase
     SQLParser::Statement::Select.new(list, table_expression)
   end
 
-  def tblx(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil)
-    SQLParser::Statement::TableExpression.new(from_clause, where_clause, group_by_clause, having_clause)
+  def tblx(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil, order_by_clause = nil)
+    SQLParser::Statement::TableExpression.new(from_clause, where_clause, group_by_clause, having_clause, order_by_clause)
   end
 
   def from(tables)

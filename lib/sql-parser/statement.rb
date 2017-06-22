@@ -27,18 +27,6 @@ module SQLParser
       end
       
     end
-    
-    class DirectSelect < Node
-      
-      def initialize(query_expression, order_by)
-        @query_expression = query_expression
-        @order_by = order_by
-      end
-
-      attr_reader :query_expression
-      attr_reader :order_by
-      
-    end
 
     class OrderBy < Node
       
@@ -96,17 +84,20 @@ module SQLParser
 
     class TableExpression < Node
       
-      def initialize(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil)
+      def initialize(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil,
+                     order_by_clause = nil)
         @from_clause = from_clause
         @where_clause = where_clause
         @group_by_clause = group_by_clause
         @having_clause = having_clause
+        @order_by_clause = order_by_clause
       end
 
       attr_reader :from_clause
       attr_reader :where_clause
       attr_reader :group_by_clause
       attr_reader :having_clause
+      attr_reader :order_by_clause
       
     end
 

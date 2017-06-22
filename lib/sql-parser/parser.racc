@@ -1,33 +1,13 @@
 class SQLParser::Parser
 
 rule
-  direct_sql_statement
-    : query_expression order_by_clause { result = SQLParser::Statement::DirectSelect.new(val[0], val[1]) }
-
-  order_by_clause
-    : # no action
-    | ORDER BY sort_specification_list { result = SQLParser::Statement::OrderBy.new(val[2]) }
-
-  sort_specification_list
-    : sort_specification_list comma sort_specification { result = Array(val[0]) + Array(val[2]) }
-    | sort_specification
-
-  sort_specification
-    : sort_key ordering_specification { result = val[1].new(val[0]) }
-
-  sort_key
-    : column_name
-    | unsigned_integer { result = SQLParser::Statement::Integer.new(val[0]) }
-
-  ordering_specification
-    : { result = SQLParser::Statement::Ascending } # default
-    | ASC { result = SQLParser::Statement::Ascending }
-    | DESC { result = SQLParser::Statement::Descending }
+  statement
+    : select_statement
 
   subquery
-    : left_paren query_expression right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
+    : left_paren select_statement right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
 
-  query_expression
+  select_statement
     : SELECT select_list table_expression { result = SQLParser::Statement::Select.new(val[1], val[2]) }
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 
@@ -45,7 +25,7 @@ rule
     | value_expression
 
   table_expression
-    : from_clause where_clause group_by_clause having_clause { result = SQLParser::Statement::TableExpression.new(val[0], val[1], val[2], val[3]) }
+    : from_clause where_clause group_by_clause having_clause order_by_clause { result = SQLParser::Statement::TableExpression.new(val[0], val[1], val[2], val[3], val[4]) }
 
   from_clause
     : FROM table_reference { result = SQLParser::Statement::FromClause.new(val[1]) }
@@ -110,6 +90,26 @@ rule
   having_clause
     : # no action
     | HAVING search_condition { result = SQLParser::Statement::HavingClause.new(val[1]) }
+
+  order_by_clause
+    : # no action
+    | ORDER BY sort_specification_list { result = SQLParser::Statement::OrderBy.new(val[2]) }
+
+  sort_specification_list
+    : sort_specification_list comma sort_specification { result = Array(val[0]) + Array(val[2]) }
+    | sort_specification
+
+  sort_specification
+    : sort_key ordering_specification { result = val[1].new(val[0]) }
+
+  sort_key
+    : column_name
+    | unsigned_integer { result = SQLParser::Statement::Integer.new(val[0]) }
+
+  ordering_specification
+    : { result = SQLParser::Statement::Ascending } # default
+    | ASC { result = SQLParser::Statement::Ascending }
+    | DESC { result = SQLParser::Statement::Descending }
 
   row_subquery
     : subquery

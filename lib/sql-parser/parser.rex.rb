@@ -186,6 +186,12 @@ class SQLParser::Parser < Racc::Parser
       when (text = @ss.scan(/VALUES/i))
          action { [:VALUES, text] }
 
+      when (text = @ss.scan(/TRUE/i))
+         action { [:TRUE, text] }
+
+      when (text = @ss.scan(/FALSE/i))
+         action { [:FALSE, text] }
+
       when (text = @ss.scan(/E/i))
          action { [:E, text] }
 

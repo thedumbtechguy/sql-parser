@@ -293,6 +293,14 @@ module SQLParser
       o.value.to_s
     end
 
+    def visit_True(o)
+      'TRUE'
+    end
+
+    def visit_False(o)
+      'FALSE'
+    end
+
     private
 
     def negate

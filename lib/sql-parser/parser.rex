@@ -73,6 +73,8 @@ rule
             EXISTS        { [:EXISTS, text] }
             DESC          { [:DESC, text] }
             VALUES        { [:VALUES, text] }
+            TRUE          { [:TRUE, text] }
+            FALSE         { [:FALSE, text] }
 
 # tokens
             E             { [:E, text] }

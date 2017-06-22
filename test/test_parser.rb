@@ -126,6 +126,11 @@ class TestParser < Test::Unit::TestCase
     assert_understands 'SELECT * FROM `users` WHERE `deleted_at` IS NOT NULL'
   end
 
+  def test_booleans
+    assert_sql 'SELECT * FROM `users` WHERE `active` = TRUE', 'SELECT * FROM users WHERE active = true'
+    assert_sql 'SELECT * FROM `users` WHERE `active` = FALSE', 'SELECT * FROM users WHERE active = false'
+  end
+
   def test_is_null
     assert_understands 'SELECT * FROM `users` WHERE `deleted_at` IS NULL'
   end

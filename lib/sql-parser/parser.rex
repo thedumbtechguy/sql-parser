@@ -72,7 +72,6 @@ rule
             USING         { [:USING, text] }
             EXISTS        { [:EXISTS, text] }
             DESC          { [:DESC, text] }
-            CURRENT_USER  { [:CURRENT_USER, text] }
             VALUES        { [:VALUES, text] }
 
 # tokens

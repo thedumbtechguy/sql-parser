@@ -2,15 +2,6 @@ require File.dirname(__FILE__) + '/../lib/sql-parser'
 require 'test/unit'
 
 class TestParser < Test::Unit::TestCase
-  def test_current_user
-    assert_understands 'SELECT CURRENT_USER'
-
-    # Should be able to differentiate between the variable CURRENT_USER, and a
-    # column named either `CURRENT_USER` or `current_user`.
-    assert_understands 'SELECT `CURRENT_USER`'
-    assert_understands 'SELECT `current_user`'
-  end
-  
   def test_insert_into_clause
     assert_understands 'INSERT INTO `users` VALUES (1, 2)'
   end

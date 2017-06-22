@@ -228,10 +228,6 @@ class TestStatement < Test::Unit::TestCase
     assert_sql 'NULL', SQLParser::Statement::Null.new
   end
 
-  def test_current_user
-    assert_sql 'CURRENT_USER', SQLParser::Statement::CurrentUser.new
-  end
-
   def test_datetime
     assert_sql "'2008-07-01 12:34:56'", SQLParser::Statement::DateTime.new(Time.local(2008, 7, 1, 12, 34, 56))
   end

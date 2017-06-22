@@ -1,12 +1,9 @@
 class SQLParser::Parser
 
 rule
-# dynamic sql
-
   direct_sql_statement
     : query_expression order_by_clause { result = SQLParser::Statement::DirectSelect.new(val[0], val[1]) }
 
-# module contents
   order_by_clause
     : # no action
     | ORDER BY sort_specification_list { result = SQLParser::Statement::OrderBy.new(val[2]) }
@@ -27,7 +24,6 @@ rule
     | ASC { result = SQLParser::Statement::Ascending }
     | DESC { result = SQLParser::Statement::Descending }
 
-# queries
   subquery
     : left_paren query_expression right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
 
@@ -115,7 +111,6 @@ rule
     : # no action
     | HAVING search_condition { result = SQLParser::Statement::HavingClause.new(val[1]) }
 
-# query expression components
   row_subquery
     : subquery
 
@@ -149,7 +144,6 @@ rule
   exists_predicate
     : EXISTS table_subquery { result = SQLParser::Statement::Exists.new(val[1]) }
 
-# constraints
   table_name
     : identifier { result = SQLParser::Statement::Table.new(val[0]) }
 
@@ -157,7 +151,6 @@ rule
     : column_name_list comma column_name { result = Array(val[0]) + Array(val[2]) }
     | column_name
 
-# search condition
   search_condition
     : boolean_term
     | search_condition OR boolean_term { result = SQLParser::Statement::Or.new(val[0], val[2]) }
@@ -249,7 +242,6 @@ rule
     | MIN left_paren value_expression right_paren { result = SQLParser::Statement::Minimum.new(val[2]) }
     | SUM left_paren value_expression right_paren { result = SQLParser::Statement::Sum.new(val[2]) }
 
-# literal numbers, strings, dates and times
   unsigned_numeric_literal
     : exact_numeric_literal
     | approximate_numeric_literal
@@ -277,11 +269,9 @@ rule
     : plus_sign { result = SQLParser::Statement::UnaryPlus }
     | minus_sign { result = SQLParser::Statement::UnaryMinus }
 
-# sql module
   column_name
     : identifier { result = SQLParser::Statement::Column.new(val[0]) }
 
-# literals
   general_literal
     : quote character_string_literal quote { result = SQLParser::Statement::String.new(val[1]) }
     | quote quote { result = SQLParser::Statement::String.new('') }
@@ -300,4 +290,6 @@ require File.dirname(__FILE__) + '/parser.rex.rb'
 
 def self.parse(sql)
   new.scan_str(sql)
+rescue Racc::ParseError => err
+  raise err.to_s.strip
 end

@@ -4,12 +4,6 @@ rule
 # dynamic sql
 
   direct_sql_statement
-    : direct_sql_data_statement
-
-  direct_sql_data_statement
-    : direct_select_statement_multiple_rows
-
-  direct_select_statement_multiple_rows
     : query_expression order_by_clause { result = SQLParser::Statement::DirectSelect.new(val[0], val[1]) }
 
 # module contents
@@ -35,13 +29,9 @@ rule
 
 # queries
   subquery
-    # FIXME: shortcut
     : left_paren query_expression right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
 
   query_expression
-    : query_specification
-
-  query_specification
     : SELECT select_list table_expression { result = SQLParser::Statement::Select.new(val[1], val[2]) }
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 

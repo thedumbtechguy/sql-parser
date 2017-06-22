@@ -262,9 +262,8 @@ class TestParser < Test::Unit::TestCase
     assert_sql %{SELECT 'Quote "this"'}, %{SELECT "Quote ""this"""}
     assert_understands %{SELECT 'Quote ''this!'''}
 
-    # # FIXME
-    # assert_sql %{SELECT '"'}, %{SELECT """"}
-    # assert_understands %{SELECT ''''}
+    assert_sql %{SELECT '"'}, %{SELECT """"}
+    assert_understands %{SELECT ''''}
   end
 
   def test_string

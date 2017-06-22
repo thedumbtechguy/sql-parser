@@ -28,20 +28,6 @@ module SQLParser
       
     end
     
-    class Insert < Node
-      
-      def initialize(table_reference, column_list, in_value_list)
-        @table_reference = table_reference
-        @column_list = column_list
-        @in_value_list = in_value_list
-      end
-
-      attr_reader :table_reference
-      attr_reader :column_list
-      attr_reader :in_value_list
-      
-    end
-    
     class DirectSelect < Node
       
       def initialize(query_expression, order_by)

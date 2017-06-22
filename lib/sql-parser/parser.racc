@@ -124,7 +124,7 @@ rule
 
   in_predicate_value
     : table_subquery
-    | left_paren in_value_list right_paren { result = SQLParser::Statement::InValueList.new(val[1]) }
+    | left_paren in_value_list right_paren { result = SQLParser::Statement::InValueList.new(Array(val[1])) }
 
   in_value_list
     : value_expression comma in_value_list { result = Array(val[0]) + Array(val[2]) }

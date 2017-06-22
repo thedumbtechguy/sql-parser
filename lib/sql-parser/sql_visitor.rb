@@ -124,7 +124,7 @@ module SQLParser
     def visit_InColumnList(o)
       "(#{arrayize(o.columns)})"
     end
-    
+
     def visit_InValueList(o)
       "(#{arrayize(o.values)})"
     end
@@ -337,7 +337,5 @@ module SQLParser
     def qualified_join(join_type, o)
       "#{visit(o.left)} #{join_type} JOIN #{visit(o.right)} #{visit(o.search_condition)}"
     end
-    
   end
-  
 end

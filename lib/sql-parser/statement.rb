@@ -1,9 +1,6 @@
 module SQLParser
-  
   module Statement
-    
     class Node
-      
       def accept(visitor)
         klass = self.class.ancestors.find do |ancestor|
           visitor.respond_to?("visit_#{demodulize(ancestor.name)}")
@@ -25,65 +22,54 @@ module SQLParser
       def demodulize(str)
         str.split('::')[-1]
       end
-      
     end
 
     class OrderBy < Node
-      
+      attr_reader :sort_specification
+
       def initialize(sort_specification)
         @sort_specification = Array(sort_specification)
       end
-
-      attr_reader :sort_specification
-      
     end
 
     class Subquery < Node
-      
+      attr_reader :query_specification
+
       def initialize(query_specification)
         @query_specification = query_specification
       end
-
-      attr_reader :query_specification
-      
     end
 
     class Select < Node
+      attr_reader :list, :table_expression
+
       def initialize(list, table_expression = nil)
         @list = list
         @table_expression = table_expression
       end
-
-      attr_reader :list
-      attr_reader :table_expression
-      
     end
 
     class SelectList < Node
-      
+      attr_reader :columns
+
       def initialize(columns)
         @columns = Array(columns)
       end
-
-      attr_reader :columns
-      
     end
 
     class Distinct < Node
-      
+      attr_reader :column
+
       def initialize(column)
         @column = column
       end
-
-      attr_reader :column
-      
     end
 
-    class All < Node
-    end
+    class All < Node; end
 
     class TableExpression < Node
-      
+      attr_reader :from_clause, :where_clause, :group_by_clause, :having_clause, :order_by_clause
+
       def initialize(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil,
                      order_by_clause = nil)
         @from_clause = from_clause
@@ -92,399 +78,292 @@ module SQLParser
         @having_clause = having_clause
         @order_by_clause = order_by_clause
       end
-
-      attr_reader :from_clause
-      attr_reader :where_clause
-      attr_reader :group_by_clause
-      attr_reader :having_clause
-      attr_reader :order_by_clause
-      
     end
 
     class FromClause < Node
-      
+      attr_reader :tables
+
       def initialize(tables)
         @tables = Array(tables)
       end
-
-      attr_reader :tables
-      
     end
 
     class OrderClause < Node
-      
+      attr_reader :columns
+
       def initialize(columns)
         @columns = Array(columns)
       end
-
-      attr_reader :columns
-      
     end
 
     class OrderSpecification < Node
-      
+      attr_reader :column
+
       def initialize(column)
         @column = column
       end
-
-      attr_reader :column
-      
     end
 
-    class Ascending < OrderSpecification
-    end
+    class Ascending < OrderSpecification; end
 
-    class Descending < OrderSpecification
-    end
+    class Descending < OrderSpecification; end
 
     class HavingClause < Node
-      
+      attr_reader :search_condition
+
       def initialize(search_condition)
         @search_condition = search_condition
       end
-
-      attr_reader :search_condition
-      
     end
 
     class GroupByClause < Node
-      
+      attr_reader :columns
+
       def initialize(columns)
         @columns = Array(columns)
       end
-
-      attr_reader :columns
-      
     end
 
     class WhereClause < Node
-      
+      attr_reader :search_condition
+
       def initialize(search_condition)
         @search_condition = search_condition
       end
-
-      attr_reader :search_condition
-      
     end
 
     class On < Node
-      
+      attr_reader :search_condition
+
       def initialize(search_condition)
         @search_condition = search_condition
       end
-
-      attr_reader :search_condition
-      
     end
 
     class SearchCondition < Node
-      
+      attr_reader :left, :right
+
       def initialize(left, right)
         @left = left
         @right = right
       end
-
-      attr_reader :left
-      attr_reader :right
-      
     end
 
     class Using < Node
-      
+      attr_reader :columns
+
       def initialize(columns)
         @columns = Array(columns)
       end
-
-      attr_reader :columns
-      
     end
 
-    class Or < SearchCondition
-    end
+    class Or < SearchCondition; end
 
-    class And < SearchCondition
-    end
+    class And < SearchCondition; end
 
     class Exists < Node
-      
+      attr_reader :table_subquery
+
       def initialize(table_subquery)
         @table_subquery = table_subquery
       end
-
-      attr_reader :table_subquery
-      
     end
 
     class ComparisonPredicate < Node
-      
+      attr_reader :left, :right
+
       def initialize(left, right)
         @left = left
         @right = right
       end
-
-      attr_reader :left
-      attr_reader :right
-      
     end
 
-    class Is < ComparisonPredicate
-    end
+    class Is < ComparisonPredicate; end
 
-    class Like < ComparisonPredicate
-    end
+    class Like < ComparisonPredicate; end
 
-    class In < ComparisonPredicate
-    end
+    class In < ComparisonPredicate; end
 
     class InValueList < Node
-      
+      attr_reader :values
+
       def initialize(values)
         @values = values
       end
-
-      attr_reader :values
-      
     end
-    
+
     class InColumnList < Node
-      
+      attr_reader :columns
+
       def initialize(columns)
         @columns = columns
       end
-
-      attr_reader :columns
-      
     end
 
     class Between < Node
-      
+      attr_reader :left, :min, :max
+
       def initialize(left, min, max)
         @left = left
         @min = min
         @max = max
       end
-
-      attr_reader :left
-      attr_reader :min
-      attr_reader :max
-      
     end
 
-    class GreaterOrEquals < ComparisonPredicate
-    end
+    class GreaterOrEquals < ComparisonPredicate; end
 
-    class LessOrEquals < ComparisonPredicate
-    end
+    class LessOrEquals < ComparisonPredicate; end
 
-    class Greater < ComparisonPredicate
-    end
+    class Greater < ComparisonPredicate; end
 
-    class Less < ComparisonPredicate
-    end
+    class Less < ComparisonPredicate; end
 
-    class Equals < ComparisonPredicate
-    end
+    class Equals < ComparisonPredicate; end
 
     class Aggregate < Node
-      
+      attr_reader :column
+
       def initialize(column)
         @column = column
       end
-
-      attr_reader :column
-      
     end
 
-    class Sum < Aggregate
-    end
+    class Sum < Aggregate; end
 
-    class Minimum < Aggregate
-    end
+    class Minimum < Aggregate; end
 
-    class Maximum < Aggregate
-    end
+    class Maximum < Aggregate; end
 
-    class Average < Aggregate
-    end
+    class Average < Aggregate; end
 
-    class Count < Aggregate
-    end
+    class Count < Aggregate; end
 
     class JoinedTable < Node
-      
+      attr_reader :left, :right
+
       def initialize(left, right)
         @left = left
         @right = right
       end
-
-      attr_reader :left
-      attr_reader :right
-      
     end
 
-    class CrossJoin < JoinedTable
-    end
+    class CrossJoin < JoinedTable; end
 
     class QualifiedJoin < JoinedTable
-      
+      attr_reader :search_condition
+
       def initialize(left, right, search_condition)
         super(left, right)
         @search_condition = search_condition
       end
-
-      attr_reader :search_condition
-      
     end
 
-    class InnerJoin < QualifiedJoin
-    end
+    class InnerJoin < QualifiedJoin; end
 
-    class LeftJoin < QualifiedJoin
-    end
+    class LeftJoin < QualifiedJoin; end
 
-    class LeftOuterJoin < QualifiedJoin
-    end
+    class LeftOuterJoin < QualifiedJoin; end
 
-    class RightJoin < QualifiedJoin
-    end
+    class RightJoin < QualifiedJoin; end
 
-    class RightOuterJoin < QualifiedJoin
-    end
+    class RightOuterJoin < QualifiedJoin; end
 
-    class FullJoin < QualifiedJoin
-    end
+    class FullJoin < QualifiedJoin; end
 
-    class FullOuterJoin < QualifiedJoin
-    end
+    class FullOuterJoin < QualifiedJoin; end
 
     class QualifiedColumn < Node
-      
+      attr_reader :table, :column
+
       def initialize(table, column)
         @table = table
         @column = column
       end
-
-      attr_reader :table
-      attr_reader :column
-      
     end
 
     class Identifier < Node
-      
+      attr_reader :name
+
       def initialize(name)
         @name = name
       end
-
-      attr_reader :name
-      
     end
 
-    class Table < Identifier
-    end
+    class Table < Identifier; end
 
-    class Column < Identifier
-    end
+    class Column < Identifier; end
 
     class As < Node
-      
+      attr_reader :value, :column
+
       def initialize(value, column)
         @value = value
         @column = column
       end
-
-      attr_reader :value
-      attr_reader :column
-      
     end
 
     class Arithmetic < Node
-      
+      attr_reader :left, :right
+
       def initialize(left, right)
         @left = left
         @right = right
       end
-
-      attr_reader :left
-      attr_reader :right
-      
     end
 
-    class Multiply < Arithmetic
-    end
+    class Multiply < Arithmetic; end
 
-    class Divide < Arithmetic
-    end
+    class Divide < Arithmetic; end
 
-    class Add < Arithmetic
-    end
+    class Add < Arithmetic; end
 
-    class Subtract < Arithmetic
-    end
+    class Subtract < Arithmetic; end
 
     class Unary < Node
-      
+      attr_reader :value
+
       def initialize(value)
         @value = value
       end
-
-      attr_reader :value
-      
     end
 
-    class Not < Unary
-    end
+    class Not < Unary; end
 
-    class UnaryPlus < Unary
-    end
+    class UnaryPlus < Unary; end
 
-    class UnaryMinus < Unary
-    end
+    class UnaryMinus < Unary; end
 
-    class True < Node
-    end
+    class True < Node; end
 
-    class False < Node
-    end
+    class False < Node; end
 
-    class Null < Node
-    end
+    class Null < Node; end
 
     class Literal < Node
-      
+      attr_reader :value
+
       def initialize(value)
         @value = value
       end
-
-      attr_reader :value
-      
     end
 
-    class DateTime < Literal
-    end
+    class DateTime < Literal; end
 
-    class Date < Literal
-    end
+    class Date < Literal; end
 
-    class String < Literal
-    end
+    class String < Literal; end
 
     class ApproximateFloat < Node
-      
+      attr_reader :mantissa, :exponent
+
       def initialize(mantissa, exponent)
         @mantissa = mantissa
         @exponent = exponent
       end
-
-      attr_reader :mantissa
-      attr_reader :exponent
-      
     end
 
-    class Float < Literal
-    end
+    class Float < Literal; end
 
-    class Integer < Literal
-    end
-    
+    class Integer < Literal; end
   end
 end

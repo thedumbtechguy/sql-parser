@@ -17,18 +17,18 @@ module SQLParser
     end
 
     def visit_Select(o)
-      # FIXME: This feels like a hack
-      initialize
+      @negated = false
 
       "SELECT #{visit_all([o.list, o.table_expression].compact).join(' ')}"
     end
 
     def visit_SelectList(o)
-      arrayize(o.columns)
-    end
-
-    def visit_Distinct(o)
-      "DISTINCT(#{visit(o.column)})"
+      list = arrayize(o.columns)
+      if o.distinct
+        "DISTINCT #{list}"
+      else
+        list
+      end
     end
 
     def visit_All(o)

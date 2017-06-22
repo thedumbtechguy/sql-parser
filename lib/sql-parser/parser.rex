@@ -73,6 +73,7 @@ rule
             EXISTS        { [:EXISTS, text] }
             DESC          { [:DESC, text] }
             VALUES        { [:VALUES, text] }
+            DISTINCT      { [:DISTINCT, text] }
             TRUE          { [:TRUE, text] }
             FALSE         { [:FALSE, text] }
 

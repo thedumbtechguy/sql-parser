@@ -50,18 +50,11 @@ module SQLParser
     end
 
     class SelectList < Node
-      attr_reader :columns
+      attr_reader :columns, :distinct
 
-      def initialize(columns)
+      def initialize(columns, distinct = false)
         @columns = Array(columns)
-      end
-    end
-
-    class Distinct < Node
-      attr_reader :column
-
-      def initialize(column)
-        @column = column
+        @distinct = distinct
       end
     end
 

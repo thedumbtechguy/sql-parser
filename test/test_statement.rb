@@ -3,7 +3,7 @@ require 'test/unit'
 
 class TestStatement < Test::Unit::TestCase
   def test_direct_select
-    assert_sql 'SELECT * FROM `users` ORDER BY `name`', select(all, tblx(from(tbl('users')), nil, nil, nil, SQLParser::Statement::OrderBy.new(col('name'))))
+    assert_sql 'SELECT * FROM `users` ORDER BY `name`', select(all, from(tbl('users')), nil, nil, nil, SQLParser::Statement::OrderBy.new(col('name')))
   end
 
   def test_order_by
@@ -16,7 +16,7 @@ class TestStatement < Test::Unit::TestCase
 
   def test_select
     assert_sql 'SELECT 1', select(int(1))
-    assert_sql 'SELECT * FROM `users`', select(all, tblx(from(tbl('users'))))
+    assert_sql 'SELECT * FROM `users`', select(all, from(tbl('users')))
   end
 
   def test_select_list
@@ -33,7 +33,7 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_table_expression
-    assert_sql 'FROM `users` WHERE `id` = 1 GROUP BY `name`', tblx(from(tbl('users')), where(equals(col('id'), int(1))), group_by(col('name')))
+    assert_sql 'SELECT * FROM `users` WHERE `id` = 1 GROUP BY `name`', select(all, from(tbl('users')), where(equals(col('id'), int(1))), group_by(col('name')))
   end
 
   def test_from_clause
@@ -293,12 +293,8 @@ class TestStatement < Test::Unit::TestCase
     SQLParser::Statement::SelectList.new(ary, distinct)
   end
 
-  def select(list, table_expression = nil)
-    SQLParser::Statement::Select.new(list, table_expression)
-  end
-
-  def tblx(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil, order_by_clause = nil)
-    SQLParser::Statement::TableExpression.new(from_clause, where_clause, group_by_clause, having_clause, order_by_clause)
+  def select(list, from = nil, where = nil, group_by = nil, having = nil, order_by = nil)
+    SQLParser::Statement::Select.new(list, from, where, group_by, having, order_by)
   end
 
   def from(tables)

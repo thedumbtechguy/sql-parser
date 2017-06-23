@@ -41,11 +41,16 @@ module SQLParser
     end
 
     class Select < Node
-      attr_reader :list, :table_expression
+      attr_reader :list, :from_clause, :where_clause, :group_by_clause, :having_clause, :order_by_clause
 
-      def initialize(list, table_expression = nil)
+      def initialize(list, from_clause = nil, where_clause = nil, group_by_clause = nil,
+                     having_clause = nil, order_by_clause = nil)
         @list = list
-        @table_expression = table_expression
+        @from_clause = from_clause
+        @where_clause = where_clause
+        @group_by_clause = group_by_clause
+        @having_clause = having_clause
+        @order_by_clause = order_by_clause
       end
     end
 
@@ -59,19 +64,6 @@ module SQLParser
     end
 
     class All < Node; end
-
-    class TableExpression < Node
-      attr_reader :from_clause, :where_clause, :group_by_clause, :having_clause, :order_by_clause
-
-      def initialize(from_clause, where_clause = nil, group_by_clause = nil, having_clause = nil,
-                     order_by_clause = nil)
-        @from_clause = from_clause
-        @where_clause = where_clause
-        @group_by_clause = group_by_clause
-        @having_clause = having_clause
-        @order_by_clause = order_by_clause
-      end
-    end
 
     class FromClause < Node
       attr_reader :tables

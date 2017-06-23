@@ -8,7 +8,7 @@ rule
     : left_paren select_statement right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
 
   select_statement
-    : SELECT select_list table_expression { result = SQLParser::Statement::Select.new(val[1], val[2]) }
+    : SELECT select_list from_clause where_clause group_by_clause having_clause order_by_clause { result = SQLParser::Statement::Select.new(val[1], val[2], val[3], val[4], val[5], val[6]) }
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 
   select_list
@@ -24,9 +24,6 @@ rule
     : value_expression AS column_name { result = SQLParser::Statement::As.new(val[0], val[2]) }
     | value_expression column_name { result = SQLParser::Statement::As.new(val[0], val[1]) }
     | value_expression
-
-  table_expression
-    : from_clause where_clause group_by_clause having_clause order_by_clause { result = SQLParser::Statement::TableExpression.new(val[0], val[1], val[2], val[3], val[4]) }
 
   from_clause
     : FROM table_reference { result = SQLParser::Statement::FromClause.new(val[1]) }

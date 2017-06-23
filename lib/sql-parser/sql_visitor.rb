@@ -19,7 +19,16 @@ module SQLParser
     def visit_Select(o)
       @negated = false
 
-      "SELECT #{visit_all([o.list, o.table_expression].compact).join(' ')}"
+      parts = visit_all([
+        o.list,
+        o.from_clause,
+        o.where_clause,
+        o.group_by_clause,
+        o.having_clause,
+        o.order_by_clause
+      ].compact)
+
+      "SELECT #{parts.join(' ')}"
     end
 
     def visit_SelectList(o)
@@ -33,16 +42,6 @@ module SQLParser
 
     def visit_All(o)
       '*'
-    end
-
-    def visit_TableExpression(o)
-      [
-        o.from_clause,
-        o.where_clause,
-        o.group_by_clause,
-        o.having_clause,
-        o.order_by_clause
-      ].compact.collect { |e| visit(e) }.join(' ')
     end
 
     def visit_FromClause(o)

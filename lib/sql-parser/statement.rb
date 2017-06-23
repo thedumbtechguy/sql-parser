@@ -183,15 +183,7 @@ module SQLParser
       attr_reader :values
 
       def initialize(values)
-        @values = values
-      end
-    end
-
-    class InColumnList < Node
-      attr_reader :columns
-
-      def initialize(columns)
-        @columns = columns
+        @values = Array(values)
       end
     end
 

@@ -129,10 +129,6 @@ module SQLParser
       end
     end
 
-    def visit_InColumnList(o)
-      "(#{arrayize(o.columns)})"
-    end
-
     def visit_InValueList(o)
       "(#{arrayize(o.values)})"
     end

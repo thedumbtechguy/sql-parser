@@ -135,21 +135,6 @@ class SQLParser::Parser < Racc::Parser
       when (text = @ss.scan(/NULL/i))
          action { [:NULL, text] }
 
-      when (text = @ss.scan(/COUNT/i))
-         action { [:COUNT, text] }
-
-      when (text = @ss.scan(/AVG/i))
-         action { [:AVG, text] }
-
-      when (text = @ss.scan(/MAX/i))
-         action { [:MAX, text] }
-
-      when (text = @ss.scan(/MIN/i))
-         action { [:MIN, text] }
-
-      when (text = @ss.scan(/SUM/i))
-         action { [:SUM, text] }
-
       when (text = @ss.scan(/GROUP/i))
          action { [:GROUP, text] }
 
@@ -188,9 +173,6 @@ class SQLParser::Parser < Racc::Parser
 
       when (text = @ss.scan(/DESC/i))
          action { [:DESC, text] }
-
-      when (text = @ss.scan(/VALUES/i))
-         action { [:VALUES, text] }
 
       when (text = @ss.scan(/DISTINCT/i))
          action { [:DISTINCT, text] }

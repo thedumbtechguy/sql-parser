@@ -56,11 +56,6 @@ rule
             LIKE          { [:LIKE, text] }
             IS            { [:IS, text] }
             NULL          { [:NULL, text] }
-            COUNT         { [:COUNT, text] }
-            AVG           { [:AVG, text] }
-            MAX           { [:MAX, text] }
-            MIN           { [:MIN, text] }
-            SUM           { [:SUM, text] }
             GROUP         { [:GROUP, text] }
             BY            { [:BY, text] }
             HAVING        { [:HAVING, text] }
@@ -74,7 +69,6 @@ rule
             USING         { [:USING, text] }
             EXISTS        { [:EXISTS, text] }
             DESC          { [:DESC, text] }
-            VALUES        { [:VALUES, text] }
             DISTINCT      { [:DISTINCT, text] }
             TRUE          { [:TRUE, text] }
             FALSE         { [:FALSE, text] }

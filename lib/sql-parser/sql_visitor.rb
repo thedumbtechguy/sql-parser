@@ -165,24 +165,8 @@ module SQLParser
       end
     end
 
-    def visit_Sum(o)
-      aggregate('SUM', o)
-    end
-
-    def visit_Minimum(o)
-      aggregate('MIN', o)
-    end
-
-    def visit_Maximum(o)
-      aggregate('MAX', o)
-    end
-
-    def visit_Average(o)
-      aggregate('AVG', o)
-    end
-
-    def visit_Count(o)
-      aggregate('COUNT', o)
+    def visit_Function(o)
+      "#{o.name}(#{visit_all(o.arguments).join(', ')})"
     end
 
     def visit_CrossJoin(o)
@@ -340,10 +324,6 @@ module SQLParser
 
     def arrayize(arr)
       visit_all(arr).join(', ')
-    end
-
-    def aggregate(function_name, o)
-      "#{function_name}(#{visit(o.column)})"
     end
 
     def qualified_join(join_type, o)

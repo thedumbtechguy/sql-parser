@@ -207,6 +207,15 @@ module SQLParser
 
     class Equals < ComparisonPredicate; end
 
+    class Function < Node
+      attr_reader :name, :arguments
+
+      def initialize(name, arguments = nil)
+        @name = name
+        @arguments = Array(arguments)
+      end
+    end
+
     class Aggregate < Node
       attr_reader :column
 

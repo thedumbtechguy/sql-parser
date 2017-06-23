@@ -158,23 +158,15 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_sum
-    assert_sql 'SUM(`messages_count`)', SQLParser::Statement::Sum.new(col('messages_count'))
+    assert_sql 'SUM(`messages_count`)', SQLParser::Statement::Function.new('SUM', col('messages_count'))
   end
 
-  def test_minimum
-    assert_sql 'MIN(`age`)', SQLParser::Statement::Minimum.new(col('age'))
-  end
-
-  def test_maximum
-    assert_sql 'MAX(`age`)', SQLParser::Statement::Maximum.new(col('age'))
-  end
-
-  def test_average
-    assert_sql 'AVG(`age`)', SQLParser::Statement::Average.new(col('age'))
+  def test_coalesce
+    assert_sql 'COALESCE(`foo`, `bar`)', SQLParser::Statement::Function.new('COALESCE', [col('foo'), col('bar')])
   end
 
   def test_count
-    assert_sql 'COUNT(*)', SQLParser::Statement::Count.new(all)
+    assert_sql 'COUNT(*)', SQLParser::Statement::Function.new('COUNT', all)
   end
 
   def test_table

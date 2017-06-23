@@ -12,8 +12,7 @@ rule
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 
   select_list
-    : asterisk { result = SQLParser::Statement::All.new }
-    | DISTINCT select_sublist { result = SQLParser::Statement::SelectList.new(val[1], true) }
+    : DISTINCT select_sublist { result = SQLParser::Statement::SelectList.new(val[1], true) }
     | select_sublist { result = SQLParser::Statement::SelectList.new(val[0]) }
 
   select_sublist
@@ -198,7 +197,8 @@ rule
     : value_expression
 
   value_expression
-    : numeric_value_expression
+    : asterisk { result = SQLParser::Statement::All.new }
+    | numeric_value_expression
     | general_literal
 
   numeric_value_expression
@@ -218,7 +218,7 @@ rule
   value_expression_primary
     : unsigned_value_specification
     | column_reference
-    | set_function_specification
+    | function_specification
     | left_paren value_expression right_paren { result = val[1] }
 
   unsigned_value_specification
@@ -235,16 +235,16 @@ rule
   qualifier
     : table_name
 
-  set_function_specification
-    : COUNT left_paren asterisk right_paren { result = SQLParser::Statement::Count.new(SQLParser::Statement::All.new) }
-    | general_set_function
+  function_specification
+    : function_name left_paren right_paren { result = SQLParser::Statement::Function.new(val[0]) }
+    | function_name left_paren function_arguments right_paren { result = SQLParser::Statement::Function.new(val[0], val[2]) }
 
-  general_set_function
-    : COUNT left_paren value_expression right_paren { result = SQLParser::Statement::Count.new(val[2]) }
-    | AVG left_paren value_expression right_paren { result = SQLParser::Statement::Average.new(val[2]) }
-    | MAX left_paren value_expression right_paren { result = SQLParser::Statement::Maximum.new(val[2]) }
-    | MIN left_paren value_expression right_paren { result = SQLParser::Statement::Minimum.new(val[2]) }
-    | SUM left_paren value_expression right_paren { result = SQLParser::Statement::Sum.new(val[2]) }
+  function_name
+    : identifier
+
+  function_arguments
+    : function_arguments comma value_expression { result = Array(val[0]) + Array(val[2]) }
+    | value_expression
 
   unsigned_numeric_literal
     : exact_numeric_literal

@@ -25,7 +25,8 @@ module SQLParser
         o.where_clause,
         o.group_by_clause,
         o.having_clause,
-        o.order_by_clause
+        o.order_by_clause,
+        o.limit_clause
       ].compact)
 
       "SELECT #{parts.join(' ')}"
@@ -50,6 +51,14 @@ module SQLParser
 
     def visit_OrderClause(o)
       "ORDER BY #{arrayize(o.columns)}"
+    end
+
+    def visit_LimitClause(o)
+      if o.offset
+        "LIMIT #{o.count} OFFSET #{o.offset}"
+      else
+        "LIMIT #{o.count}"
+      end
     end
 
     def visit_Ascending(o)

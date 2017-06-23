@@ -117,6 +117,12 @@ class SQLParser::Parser < Racc::Parser
       when (text = @ss.scan(/ORDER/i))
          action { [:ORDER, text] }
 
+      when (text = @ss.scan(/LIMIT/i))
+         action { [:LIMIT, text] }
+
+      when (text = @ss.scan(/OFFSET/i))
+         action { [:OFFSET, text] }
+
       when (text = @ss.scan(/OR/i))
          action { [:OR, text] }
 

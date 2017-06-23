@@ -8,7 +8,7 @@ rule
     : left_paren select_statement right_paren { result = SQLParser::Statement::Subquery.new(val[1]) }
 
   select_statement
-    : SELECT select_list from_clause where_clause group_by_clause having_clause order_by_clause { result = SQLParser::Statement::Select.new(val[1], val[2], val[3], val[4], val[5], val[6]) }
+    : SELECT select_list from_clause where_clause group_by_clause having_clause order_by_clause limit_clause { result = SQLParser::Statement::Select.new(val[1], val[2], val[3], val[4], val[5], val[6], val[7]) }
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 
   select_list
@@ -108,6 +108,12 @@ rule
     : { result = SQLParser::Statement::Ascending } # default
     | ASC { result = SQLParser::Statement::Ascending }
     | DESC { result = SQLParser::Statement::Descending }
+
+  limit_clause
+    : # no action
+    | LIMIT unsigned_integer OFFSET unsigned_integer { result = SQLParser::Statement::LimitClause.new(val[1], val[3]) }
+    | LIMIT unsigned_integer comma unsigned_integer { result = SQLParser::Statement::LimitClause.new(val[3], val[1]) }
+    | LIMIT unsigned_integer { result = SQLParser::Statement::LimitClause.new(val[1]) }
 
   row_subquery
     : subquery

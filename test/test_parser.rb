@@ -342,6 +342,11 @@ class TestParser < Test::Unit::TestCase
     assert_understands 'SELECT 10'
   end
 
+  def test_limit
+    assert_sql 'SELECT * FROM `foo` LIMIT 10 OFFSET 20', 'SELECT * FROM foo LIMIT 20, 10'
+    assert_understands 'SELECT * FROM `foo` LIMIT 10'
+  end
+
   private
 
   def assert_sql(expected, given)

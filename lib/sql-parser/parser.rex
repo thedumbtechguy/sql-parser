@@ -50,6 +50,8 @@ rule
             INTO          { [:INTO, text] }
             IN            { [:IN, text] }
             ORDER         { [:ORDER, text] }
+            LIMIT         { [:LIMIT, text] }
+            OFFSET        { [:OFFSET, text] }
             OR            { [:OR, text] }
             LIKE          { [:LIKE, text] }
             IS            { [:IS, text] }

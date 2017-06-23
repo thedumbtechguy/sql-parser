@@ -41,16 +41,17 @@ module SQLParser
     end
 
     class Select < Node
-      attr_reader :list, :from_clause, :where_clause, :group_by_clause, :having_clause, :order_by_clause
+      attr_reader :list, :from_clause, :where_clause, :group_by_clause, :having_clause, :order_by_clause, :limit_clause
 
       def initialize(list, from_clause = nil, where_clause = nil, group_by_clause = nil,
-                     having_clause = nil, order_by_clause = nil)
+                     having_clause = nil, order_by_clause = nil, limit_clause = nil)
         @list = list
         @from_clause = from_clause
         @where_clause = where_clause
         @group_by_clause = group_by_clause
         @having_clause = having_clause
         @order_by_clause = order_by_clause
+        @limit_clause = limit_clause
       end
     end
 
@@ -78,6 +79,15 @@ module SQLParser
 
       def initialize(columns)
         @columns = Array(columns)
+      end
+    end
+
+    class LimitClause < Node
+      attr_reader :count, :offset
+
+      def initialize(count, offset = nil)
+        @count = count
+        @offset = offset
       end
     end
 

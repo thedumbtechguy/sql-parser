@@ -321,6 +321,10 @@ class TestParser < Test::Unit::TestCase
     assert_understands 'SELECT * FROM `foo` LIMIT 10'
   end
 
+  def test_group_by_ord_order_by_ord
+    assert_understands 'SELECT `bar`, COUNT(*) FROM `foo` GROUP BY 1 ORDER BY 1 DESC'
+  end
+
   private
 
   def assert_sql(expected, given)

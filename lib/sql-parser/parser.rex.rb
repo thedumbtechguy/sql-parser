@@ -183,9 +183,6 @@ class SQLParser::Parser < Racc::Parser
       when (text = @ss.scan(/FALSE/i))
          action { [:FALSE, text] }
 
-      when (text = @ss.scan(/E/i))
-         action { [:E, text] }
-
       when (text = @ss.scan(/<>/i))
          action { [:not_equals_operator, text] }
 

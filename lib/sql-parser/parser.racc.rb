@@ -864,7 +864,7 @@ module_eval(<<'.,.,', 'parser.racc', 88)
 
 module_eval(<<'.,.,', 'parser.racc', 92)
   def _reduce_45(val, _values, result)
-     result = SQLParser::Statement::OrderBy.new(val[2]) 
+     result = SQLParser::Statement::OrderClause.new(val[2]) 
     result
   end
 .,.,

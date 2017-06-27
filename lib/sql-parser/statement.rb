@@ -2,18 +2,6 @@ module SQLParser
   module Statement
     class Node; end
 
-    class OrderBy < Node
-      attr_reader :sort_specification
-
-      def initialize(sort_specification)
-        @sort_specification = Array(sort_specification)
-      end
-
-      def to_sql
-        "ORDER BY #{sort_specification.map { |node| node.to_sql }.join(', ')}"
-      end
-    end
-
     class Subquery < Node
       attr_reader :query_specification
 

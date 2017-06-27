@@ -90,7 +90,7 @@ rule
 
   order_by_clause
     : # no action
-    | ORDER BY sort_specification_list { result = SQLParser::Statement::OrderBy.new(val[2]) }
+    | ORDER BY sort_specification_list { result = SQLParser::Statement::OrderClause.new(val[2]) }
 
   sort_specification_list
     : sort_specification_list comma sort_specification { result = Array(val[0]) + Array(val[2]) }

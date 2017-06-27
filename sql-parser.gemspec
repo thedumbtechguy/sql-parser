@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'sql-parser'
-  s.version     = '0.1.1'
+  s.version     = '0.2.0'
   s.authors     = ['Dray Lacy', 'Louis Mullie', "Chris O'Hara"]
   s.email       = ['dray@izea.com', 'louis.mullie@gmail.com', 'cohara@kissmetrics.com']
   s.homepage    = 'https://github.com/louismullie/sql-parser'

@@ -1,4 +1,3 @@
-require_relative 'lib/sql-parser/version'
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|

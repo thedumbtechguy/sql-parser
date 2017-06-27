@@ -1,9 +1,6 @@
-$:.push File.expand_path('../lib', __FILE__)
-require 'sql-parser/version'
-
 Gem::Specification.new do |s|
   s.name        = 'sql-parser'
-  s.version     = SQLParser::VERSION
+  s.version     = '0.1.1'
   s.authors     = ['Dray Lacy', 'Louis Mullie', "Chris O'Hara"]
   s.email       = ['dray@izea.com', 'louis.mullie@gmail.com', 'cohara@kissmetrics.com']
   s.homepage    = 'https://github.com/louismullie/sql-parser'

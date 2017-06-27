@@ -102,7 +102,8 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_is_not_null
-    assert_sql '1 IS NOT NULL', SQLParser::Statement::Not.new(SQLParser::Statement::Is.new(int(1), SQLParser::Statement::Null.new))
+    assert_sql 'NOT 1 IS NULL', SQLParser::Statement::Not.new(SQLParser::Statement::Is.new(int(1), SQLParser::Statement::Null.new))
+    assert_sql '1 IS NOT NULL', SQLParser::Statement::IsNot.new(int(1), SQLParser::Statement::Null.new)
   end
 
   def test_is_null
@@ -110,7 +111,8 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_not_like
-    assert_sql "'hello' NOT LIKE 'h%'", SQLParser::Statement::Not.new(SQLParser::Statement::Like.new(str('hello'), str('h%')))
+    assert_sql "NOT 'hello' LIKE 'h%'", SQLParser::Statement::Not.new(SQLParser::Statement::Like.new(str('hello'), str('h%')))
+    assert_sql "'hello' NOT LIKE 'h%'", SQLParser::Statement::NotLike.new(str('hello'), str('h%'))
   end
 
   def test_like
@@ -118,7 +120,8 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_not_in
-    assert_sql '1 NOT IN (1, 2, 3)', SQLParser::Statement::Not.new(SQLParser::Statement::In.new(int(1), SQLParser::Statement::InValueList.new([int(1), int(2), int(3)])))
+    assert_sql 'NOT 1 IN (1, 2, 3)', SQLParser::Statement::Not.new(SQLParser::Statement::In.new(int(1), SQLParser::Statement::InValueList.new([int(1), int(2), int(3)])))
+    assert_sql '1 NOT IN (1, 2, 3)', SQLParser::Statement::NotIn.new(int(1), SQLParser::Statement::InValueList.new([int(1), int(2), int(3)]))
   end
 
   def test_in
@@ -126,7 +129,8 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_not_between
-    assert_sql '2 NOT BETWEEN 1 AND 3', SQLParser::Statement::Not.new(SQLParser::Statement::Between.new(int(2), int(1), int(3)))
+    assert_sql 'NOT 2 BETWEEN 1 AND 3', SQLParser::Statement::Not.new(SQLParser::Statement::Between.new(int(2), int(1), int(3)))
+    assert_sql '2 NOT BETWEEN 1 AND 3', SQLParser::Statement::NotBetween.new(int(2), int(1), int(3))
   end
 
   def test_between
@@ -150,7 +154,8 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_not_equals
-    assert_sql '1 <> 1', SQLParser::Statement::Not.new(equals(int(1), int(1)))
+    assert_sql 'NOT 1 = 1', SQLParser::Statement::Not.new(equals(int(1), int(1)))
+    assert_sql '1 <> 1', SQLParser::Statement::NotEquals.new(int(1), int(1))
   end
 
   def test_equals

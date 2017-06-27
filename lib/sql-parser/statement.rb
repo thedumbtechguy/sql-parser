@@ -175,9 +175,15 @@ module SQLParser
 
     class Is < ComparisonPredicate; end
 
+    class IsNot < ComparisonPredicate; end
+
     class Like < ComparisonPredicate; end
 
+    class NotLike < ComparisonPredicate; end
+
     class In < ComparisonPredicate; end
+
+    class NotIn < ComparisonPredicate; end
 
     class InValueList < Node
       attr_reader :values
@@ -197,6 +203,16 @@ module SQLParser
       end
     end
 
+    class NotBetween < Node
+      attr_reader :left, :min, :max
+
+      def initialize(left, min, max)
+        @left = left
+        @min = min
+        @max = max
+      end
+    end
+
     class GreaterOrEquals < ComparisonPredicate; end
 
     class LessOrEquals < ComparisonPredicate; end
@@ -206,6 +222,8 @@ module SQLParser
     class Less < ComparisonPredicate; end
 
     class Equals < ComparisonPredicate; end
+
+    class NotEquals < ComparisonPredicate; end
 
     class Function < Node
       attr_reader :name, :arguments

@@ -1,9 +1,5 @@
 module SQLParser
   class SQLVisitor
-    def initialize
-      @negated = false
-    end
-
     def visit(node)
       node.accept(self)
     end
@@ -17,8 +13,6 @@ module SQLParser
     end
 
     def visit_Select(o)
-      @negated = false
-
       parts = visit_all([
         o.list,
         o.from_clause,
@@ -98,35 +92,35 @@ module SQLParser
     end
 
     def visit_Exists(o)
-      if @negated
-        "NOT EXISTS #{visit(o.table_subquery)}"
-      else
-        "EXISTS #{visit(o.table_subquery)}"
-      end
+      "EXISTS #{visit(o.table_subquery)}"
+    end
+
+    def visit_NotExists(o)
+      "NOT EXISTS #{visit(o.table_subquery)}"
     end
 
     def visit_Is(o)
-      if @negated
-        comparison('IS NOT', o)
-      else
-        comparison('IS', o)
-      end
+      comparison('IS', o)
+    end
+
+    def visit_IsNot(o)
+      comparison('IS NOT', o)
     end
 
     def visit_Like(o)
-      if @negated
-        comparison('NOT LIKE', o)
-      else
-        comparison('LIKE', o)
-      end
+      comparison('LIKE', o)
+    end
+
+    def visit_NotLike(o)
+      comparison('NOT LIKE', o)
     end
 
     def visit_In(o)
-      if @negated
-        comparison('NOT IN', o)
-      else
-        comparison('IN', o)
-      end
+      comparison('IN', o)
+    end
+
+    def visit_NotIn(o)
+      comparison('NOT IN', o)
     end
 
     def visit_InValueList(o)
@@ -134,11 +128,11 @@ module SQLParser
     end
 
     def visit_Between(o)
-      if @negated
-        "#{visit(o.left)} NOT BETWEEN #{visit(o.min)} AND #{visit(o.max)}"
-      else
-        "#{visit(o.left)} BETWEEN #{visit(o.min)} AND #{visit(o.max)}"
-      end
+      "#{visit(o.left)} BETWEEN #{visit(o.min)} AND #{visit(o.max)}"
+    end
+
+    def visit_NotBetween(o)
+      "#{visit(o.left)} NOT BETWEEN #{visit(o.min)} AND #{visit(o.max)}"
     end
 
     def visit_GreaterOrEquals(o)
@@ -158,11 +152,11 @@ module SQLParser
     end
 
     def visit_Equals(o)
-      if @negated
-        comparison('<>', o)
-      else
-        comparison('=', o)
-      end
+      comparison('=', o)
+    end
+
+    def visit_NotEquals(o)
+      comparison('<>', o)
     end
 
     def visit_Function(o)
@@ -234,7 +228,7 @@ module SQLParser
     end
 
     def visit_Not(o)
-      negate { visit(o.value) }
+      "NOT #{visit(o.value)}"
     end
 
     def visit_UnaryPlus(o)
@@ -290,13 +284,6 @@ module SQLParser
     end
 
     private
-
-    def negate
-      @negated = true
-      yield
-    ensure
-      @negated = false
-    end
 
     def quote(str)
       "`#{str}`"

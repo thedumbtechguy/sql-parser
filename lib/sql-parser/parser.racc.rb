@@ -944,7 +944,7 @@ module_eval(<<'.,.,', 'parser.racc', 117)
 
 module_eval(<<'.,.,', 'parser.racc', 123)
   def _reduce_60(val, _values, result)
-     result = SQLParser::Statement::Not.new(SQLParser::Statement::Between.new(val[0], val[3], val[5])) 
+     result = SQLParser::Statement::NotBetween.new(val[0], val[3], val[5]) 
     result
   end
 .,.,
@@ -958,7 +958,7 @@ module_eval(<<'.,.,', 'parser.racc', 124)
 
 module_eval(<<'.,.,', 'parser.racc', 127)
   def _reduce_62(val, _values, result)
-     result = SQLParser::Statement::Not.new(SQLParser::Statement::In.new(val[0], val[3])) 
+     result = SQLParser::Statement::NotIn.new(val[0], val[3]) 
     result
   end
 .,.,
@@ -990,7 +990,7 @@ module_eval(<<'.,.,', 'parser.racc', 135)
 
 module_eval(<<'.,.,', 'parser.racc', 142)
   def _reduce_68(val, _values, result)
-     result = SQLParser::Statement::Not.new(SQLParser::Statement::Like.new(val[0], val[3])) 
+     result = SQLParser::Statement::NotLike.new(val[0], val[3]) 
     result
   end
 .,.,
@@ -1004,7 +1004,7 @@ module_eval(<<'.,.,', 'parser.racc', 143)
 
 module_eval(<<'.,.,', 'parser.racc', 146)
   def _reduce_70(val, _values, result)
-     result = SQLParser::Statement::Not.new(SQLParser::Statement::Is.new(val[0], SQLParser::Statement::Null.new)) 
+     result = SQLParser::Statement::IsNot.new(val[0], SQLParser::Statement::Null.new) 
     result
   end
 .,.,
@@ -1098,7 +1098,7 @@ module_eval(<<'.,.,', 'parser.racc', 187)
 
 module_eval(<<'.,.,', 'parser.racc', 188)
   def _reduce_92(val, _values, result)
-     result = SQLParser::Statement::Not.new(SQLParser::Statement::Equals.new(val[0], val[2])) 
+     result = SQLParser::Statement::NotEquals.new(val[0], val[2]) 
     result
   end
 .,.,

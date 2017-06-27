@@ -720,19 +720,6 @@ module SQLParser
       end
     end
 
-    class ApproximateFloat < Node
-      attr_reader :mantissa, :exponent
-
-      def initialize(mantissa, exponent)
-        @mantissa = mantissa
-        @exponent = exponent
-      end
-
-      def to_sql
-        "#{mantissa.to_sql}E#{exponent.to_sql}"
-      end
-    end
-
     class Float < Literal; end
 
     class Integer < Literal; end

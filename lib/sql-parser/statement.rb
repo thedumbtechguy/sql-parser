@@ -1,6 +1,12 @@
+require 'sql-parser/visitor'
+
 module SQLParser
   module Statement
-    class Node; end
+    class Node
+      def visit(&block)
+        Visitor.new(&block).visit(self)
+      end
+    end
 
     class Subquery < Node
       attr_reader :query_specification

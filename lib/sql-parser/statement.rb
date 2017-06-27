@@ -1,10 +1,15 @@
-require 'sql-parser/visitor'
-
 module SQLParser
   module Statement
     class Node
       def visit(&block)
-        Visitor.new(&block).visit(self)
+        block.call(self)
+
+        instance_variables.each do |name|
+          value = instance_variable_get(name)
+          Array(value).each do |item|
+            item.visit(&block) if item.is_a?(Node)
+          end
+        end
       end
 
       def map(&block)

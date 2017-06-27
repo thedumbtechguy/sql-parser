@@ -12,7 +12,7 @@ rule
     | SELECT select_list { result = SQLParser::Statement::Select.new(val[1]) }
 
   select_list
-    : DISTINCT select_sublist { result = SQLParser::Statement::SelectList.new(val[1], true) }
+    : DISTINCT select_sublist { result = SQLParser::Statement::Distinct.new(SQLParser::Statement::SelectList.new(val[1])) }
     | select_sublist { result = SQLParser::Statement::SelectList.new(val[0]) }
 
   select_sublist

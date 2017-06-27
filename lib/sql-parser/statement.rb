@@ -44,16 +44,26 @@ module SQLParser
     end
 
     class SelectList < Node
-      attr_reader :columns, :distinct
+      attr_reader :columns
 
-      def initialize(columns, distinct = false)
+      def initialize(columns)
         @columns = Array(columns)
-        @distinct = distinct
       end
 
       def to_sql
-        columns_sql = columns.map { |node| node.to_sql }.join(', ')
-        distinct ? "DISTINCT #{columns_sql}" : columns_sql
+        columns.map { |node| node.to_sql }.join(', ')
+      end
+    end
+
+    class Distinct < Node
+      attr_reader :list
+
+      def initialize(list)
+        @list = list
+      end
+
+      def to_sql
+        "DISTINCT #{list.to_sql}"
       end
     end
 

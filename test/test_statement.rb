@@ -21,7 +21,7 @@ class TestStatement < Test::Unit::TestCase
   end
 
   def test_distinct
-    assert_sql 'SELECT DISTINCT `foo` FROM `bar`', select(slist(col('foo'), true), from(tbl('bar')))
+    assert_sql 'SELECT DISTINCT `foo` FROM `bar`', select(distinct(slist(col('foo'))), from(tbl('bar')))
   end
 
   def test_all
@@ -283,8 +283,12 @@ class TestStatement < Test::Unit::TestCase
     SQLParser::Statement::Table.new(name)
   end
 
-  def slist(ary, distinct = false)
-    SQLParser::Statement::SelectList.new(ary, distinct)
+  def slist(ary)
+    SQLParser::Statement::SelectList.new(ary)
+  end
+
+  def distinct(list)
+    SQLParser::Statement::Distinct.new(list)
   end
 
   def select(list, from = nil, where = nil, group_by = nil, having = nil, order_by = nil, limit = nil)

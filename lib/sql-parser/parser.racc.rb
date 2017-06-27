@@ -664,7 +664,7 @@ module_eval(<<'.,.,', 'parser.racc', 11)
 
 module_eval(<<'.,.,', 'parser.racc', 14)
   def _reduce_5(val, _values, result)
-     result = SQLParser::Statement::SelectList.new(val[1], true) 
+     result = SQLParser::Statement::Distinct.new(SQLParser::Statement::SelectList.new(val[1])) 
     result
   end
 .,.,

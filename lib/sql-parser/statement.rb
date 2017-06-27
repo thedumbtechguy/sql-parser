@@ -6,6 +6,10 @@ module SQLParser
       def visit(&block)
         Visitor.new(&block).visit(self)
       end
+
+      def map(&block)
+        yield(self) || self
+      end
     end
 
     class Subquery < Node
@@ -13,6 +17,10 @@ module SQLParser
 
       def initialize(query_specification)
         @query_specification = query_specification
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(query_specification.map(&block))
       end
 
       def to_sql
@@ -34,8 +42,18 @@ module SQLParser
         @limit_clause = limit_clause
       end
 
+      def map(&block)
+        yield(self) || self.class.new(*parts.map { |child| child.map(&block) if child })
+      end
+
       def to_sql
-        parts = [
+        "SELECT #{parts.compact.map { |node| node.to_sql }.join(' ')}"
+      end
+
+      private
+
+      def parts
+        [
           list,
           from_clause,
           where_clause,
@@ -43,9 +61,7 @@ module SQLParser
           having_clause,
           order_by_clause,
           limit_clause
-        ].compact.map { |node| node.to_sql }
-
-        "SELECT #{parts.join(' ')}"
+        ]
       end
     end
 
@@ -54,6 +70,10 @@ module SQLParser
 
       def initialize(columns)
         @columns = Array(columns)
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(columns.map { |col| col.map(&block) })
       end
 
       def to_sql
@@ -66,6 +86,10 @@ module SQLParser
 
       def initialize(list)
         @list = list
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(list.map(&block))
       end
 
       def to_sql
@@ -86,6 +110,10 @@ module SQLParser
         @tables = Array(tables)
       end
 
+      def map(&block)
+        yield(self) || self.class.new(tables.map { |table| table.map(&block) })
+      end
+
       def to_sql
         "FROM #{tables.map { |node| node.to_sql }.join(', ')}"
       end
@@ -96,6 +124,10 @@ module SQLParser
 
       def initialize(columns)
         @columns = Array(columns)
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(columns.map { |col| col.map(&block) })
       end
 
       def to_sql
@@ -126,6 +158,10 @@ module SQLParser
       def initialize(column)
         @column = column
       end
+
+      def map(&block)
+        yield(self) || self.class.new(column.map(&block))
+      end
     end
 
     class Ascending < OrderSpecification
@@ -147,6 +183,10 @@ module SQLParser
         @search_condition = search_condition
       end
 
+      def map(&block)
+        yield(self) || self.class.new(search_condition.map(&block))
+      end
+
       def to_sql
         "HAVING #{search_condition.to_sql}"
       end
@@ -157,6 +197,10 @@ module SQLParser
 
       def initialize(columns)
         @columns = Array(columns)
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(columns.map { |col| col.map(&block) })
       end
 
       def to_sql
@@ -171,6 +215,10 @@ module SQLParser
         @search_condition = search_condition
       end
 
+      def map(&block)
+        yield(self) || self.class.new(search_condition.map(&block))
+      end
+
       def to_sql
         "WHERE #{search_condition.to_sql}"
       end
@@ -181,6 +229,10 @@ module SQLParser
 
       def initialize(search_condition)
         @search_condition = search_condition
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(search_condition.map(&block))
       end
 
       def to_sql
@@ -195,6 +247,10 @@ module SQLParser
         @left = left
         @right = right
       end
+
+      def map(&block)
+        yield(self) || self.class.new(left.map(&block), right.map(&block))
+      end
     end
 
     class Using < Node
@@ -202,6 +258,10 @@ module SQLParser
 
       def initialize(columns)
         @columns = Array(columns)
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(columns.map { |col| col.map(&block) })
       end
 
       def to_sql
@@ -228,6 +288,10 @@ module SQLParser
         @table_subquery = table_subquery
       end
 
+      def map(&block)
+        yield(self) || self.class.new(table_subquery.map(&block))
+      end
+
       def to_sql
         "EXISTS #{table_subquery.to_sql}"
       end
@@ -239,6 +303,10 @@ module SQLParser
       def initialize(left, right)
         @left = left
         @right = right
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(left.map(&block), right.map(&block))
       end
 
       def to_sql
@@ -289,6 +357,10 @@ module SQLParser
         @values = Array(values)
       end
 
+      def map(&block)
+        yield(self) || self.class.new(values.map { |value| value.map(&block) })
+      end
+
       def to_sql
         "(#{values.map { |node| node.to_sql }.join(', ')})"
       end
@@ -303,6 +375,14 @@ module SQLParser
         @max = max
       end
 
+      def map(&block)
+        yield(self) || self.class.new(
+          left.map(&block),
+          min.map(&block),
+          max.map(&block)
+        )
+      end
+
       def to_sql
         "#{left.to_sql} BETWEEN #{min.to_sql} AND #{max.to_sql}"
       end
@@ -315,6 +395,14 @@ module SQLParser
         @left = left
         @min = min
         @max = max
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(
+          left.map(&block),
+          min.map(&block),
+          max.map(&block)
+        )
       end
 
       def to_sql
@@ -366,6 +454,10 @@ module SQLParser
         @arguments = Array(arguments)
       end
 
+      def map(&block)
+        yield(self) || self.class.new(name, arguments.map { |arg| arg.map(&block) })
+      end
+
       def to_sql
         "#{name}(#{arguments.map { |node| node.to_sql }.join(', ')})"
       end
@@ -377,6 +469,10 @@ module SQLParser
       def initialize(left, right)
         @left = left
         @right = right
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(left.map(&block), right.map(&block))
       end
     end
 
@@ -392,6 +488,14 @@ module SQLParser
       def initialize(left, right, search_condition)
         super(left, right)
         @search_condition = search_condition
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(
+          left.map(&block),
+          right.map(&block),
+          search_condition.map(&block)
+        )
       end
 
       def to_sql
@@ -449,6 +553,10 @@ module SQLParser
         @column = column
       end
 
+      def map(&block)
+        yield(self) || self.class.new(table.map(&block), column.map(&block))
+      end
+
       def to_sql
         "#{table.to_sql}.#{column.to_sql}"
       end
@@ -478,6 +586,10 @@ module SQLParser
         @column = column
       end
 
+      def map(&block)
+        yield(self) || self.class.new(value.map(&block), column.map(&block))
+      end
+
       def to_sql
         "#{value.to_sql} AS #{column.to_sql}"
       end
@@ -489,6 +601,10 @@ module SQLParser
       def initialize(left, right)
         @left = left
         @right = right
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(left.map(&block), right.map(&block))
       end
 
       def to_sql
@@ -525,6 +641,10 @@ module SQLParser
 
       def initialize(value)
         @value = value
+      end
+
+      def map(&block)
+        yield(self) || self.class.new(value.map(&block))
       end
     end
 

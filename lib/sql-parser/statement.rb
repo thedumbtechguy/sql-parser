@@ -1,34 +1,16 @@
 module SQLParser
   module Statement
-    class Node
-      def accept(visitor)
-        klass = self.class.ancestors.find do |ancestor|
-          visitor.respond_to?("visit_#{demodulize(ancestor.name)}")
-        end
-
-        if klass
-          visitor.__send__("visit_#{demodulize(klass.name)}", self)
-        else
-          raise "No visitor for #{self.class.name}"
-        end
-      end
-
-      def to_sql
-        SQLVisitor.new.visit(self)
-      end
-
-      private
-
-      def demodulize(str)
-        str.split('::')[-1]
-      end
-    end
+    class Node; end
 
     class OrderBy < Node
       attr_reader :sort_specification
 
       def initialize(sort_specification)
         @sort_specification = Array(sort_specification)
+      end
+
+      def to_sql
+        "ORDER BY #{sort_specification.map { |node| node.to_sql }.join(', ')}"
       end
     end
 
@@ -37,6 +19,10 @@ module SQLParser
 
       def initialize(query_specification)
         @query_specification = query_specification
+      end
+
+      def to_sql
+        "(#{query_specification.to_sql})"
       end
     end
 
@@ -53,6 +39,20 @@ module SQLParser
         @order_by_clause = order_by_clause
         @limit_clause = limit_clause
       end
+
+      def to_sql
+        parts = [
+          list,
+          from_clause,
+          where_clause,
+          group_by_clause,
+          having_clause,
+          order_by_clause,
+          limit_clause
+        ].compact.map { |node| node.to_sql }
+
+        "SELECT #{parts.join(' ')}"
+      end
     end
 
     class SelectList < Node
@@ -62,15 +62,28 @@ module SQLParser
         @columns = Array(columns)
         @distinct = distinct
       end
+
+      def to_sql
+        columns_sql = columns.map { |node| node.to_sql }.join(', ')
+        distinct ? "DISTINCT #{columns_sql}" : columns_sql
+      end
     end
 
-    class All < Node; end
+    class All < Node
+      def to_sql
+        '*'
+      end
+    end
 
     class FromClause < Node
       attr_reader :tables
 
       def initialize(tables)
         @tables = Array(tables)
+      end
+
+      def to_sql
+        "FROM #{tables.map { |node| node.to_sql }.join(', ')}"
       end
     end
 
@@ -80,6 +93,10 @@ module SQLParser
       def initialize(columns)
         @columns = Array(columns)
       end
+
+      def to_sql
+        "ORDER BY #{columns.map { |node| node.to_sql }.join(', ')}"
+      end
     end
 
     class LimitClause < Node
@@ -88,6 +105,14 @@ module SQLParser
       def initialize(count, offset = nil)
         @count = count
         @offset = offset
+      end
+
+      def to_sql
+        if offset
+          "LIMIT #{count} OFFSET #{offset}"
+        else
+          "LIMIT #{count}"
+        end
       end
     end
 
@@ -99,15 +124,27 @@ module SQLParser
       end
     end
 
-    class Ascending < OrderSpecification; end
+    class Ascending < OrderSpecification
+      def to_sql
+        "#{column.to_sql} ASC"
+      end
+    end
 
-    class Descending < OrderSpecification; end
+    class Descending < OrderSpecification
+      def to_sql
+        "#{column.to_sql} DESC"
+      end
+    end
 
     class HavingClause < Node
       attr_reader :search_condition
 
       def initialize(search_condition)
         @search_condition = search_condition
+      end
+
+      def to_sql
+        "HAVING #{search_condition.to_sql}"
       end
     end
 
@@ -117,6 +154,10 @@ module SQLParser
       def initialize(columns)
         @columns = Array(columns)
       end
+
+      def to_sql
+        "GROUP BY #{columns.map { |node| node.to_sql }.join(', ')}"
+      end
     end
 
     class WhereClause < Node
@@ -125,6 +166,10 @@ module SQLParser
       def initialize(search_condition)
         @search_condition = search_condition
       end
+
+      def to_sql
+        "WHERE #{search_condition.to_sql}"
+      end
     end
 
     class On < Node
@@ -132,6 +177,10 @@ module SQLParser
 
       def initialize(search_condition)
         @search_condition = search_condition
+      end
+
+      def to_sql
+        "ON #{search_condition.to_sql}"
       end
     end
 
@@ -150,17 +199,33 @@ module SQLParser
       def initialize(columns)
         @columns = Array(columns)
       end
+
+      def to_sql
+        "USING (#{columns.map { |node| node.to_sql }.join(', ')})"
+      end
     end
 
-    class Or < SearchCondition; end
+    class Or < SearchCondition
+      def to_sql
+        "(#{left.to_sql} OR #{right.to_sql})"
+      end
+    end
 
-    class And < SearchCondition; end
+    class And < SearchCondition
+      def to_sql
+        "(#{left.to_sql} AND #{right.to_sql})"
+      end
+    end
 
     class Exists < Node
       attr_reader :table_subquery
 
       def initialize(table_subquery)
         @table_subquery = table_subquery
+      end
+
+      def to_sql
+        "EXISTS #{table_subquery.to_sql}"
       end
     end
 
@@ -171,25 +236,57 @@ module SQLParser
         @left = left
         @right = right
       end
+
+      def to_sql
+        "#{left.to_sql} #{operator} #{right.to_sql}"
+      end
     end
 
-    class Is < ComparisonPredicate; end
+    class Is < ComparisonPredicate
+      def operator
+        'IS'
+      end
+    end
 
-    class IsNot < ComparisonPredicate; end
+    class IsNot < ComparisonPredicate
+      def operator
+        'IS NOT'
+      end
+    end
 
-    class Like < ComparisonPredicate; end
+    class Like < ComparisonPredicate
+      def operator
+        'LIKE'
+      end
+    end
 
-    class NotLike < ComparisonPredicate; end
+    class NotLike < ComparisonPredicate
+      def operator
+        'NOT LIKE'
+      end
+    end
 
-    class In < ComparisonPredicate; end
+    class In < ComparisonPredicate
+      def operator
+        'IN'
+      end
+    end
 
-    class NotIn < ComparisonPredicate; end
+    class NotIn < ComparisonPredicate
+      def operator
+        'NOT IN'
+      end
+    end
 
     class InValueList < Node
       attr_reader :values
 
       def initialize(values)
         @values = Array(values)
+      end
+
+      def to_sql
+        "(#{values.map { |node| node.to_sql }.join(', ')})"
       end
     end
 
@@ -201,6 +298,10 @@ module SQLParser
         @min = min
         @max = max
       end
+
+      def to_sql
+        "#{left.to_sql} BETWEEN #{min.to_sql} AND #{max.to_sql}"
+      end
     end
 
     class NotBetween < Node
@@ -211,19 +312,47 @@ module SQLParser
         @min = min
         @max = max
       end
+
+      def to_sql
+        "#{left.to_sql} NOT BETWEEN #{min.to_sql} AND #{max.to_sql}"
+      end
     end
 
-    class GreaterOrEquals < ComparisonPredicate; end
+    class GreaterOrEquals < ComparisonPredicate
+      def operator
+        '>='
+      end
+    end
 
-    class LessOrEquals < ComparisonPredicate; end
+    class LessOrEquals < ComparisonPredicate
+      def operator
+        '<='
+      end
+    end
 
-    class Greater < ComparisonPredicate; end
+    class Greater < ComparisonPredicate
+      def operator
+        '>'
+      end
+    end
 
-    class Less < ComparisonPredicate; end
+    class Less < ComparisonPredicate
+      def operator
+        '<'
+      end
+    end
 
-    class Equals < ComparisonPredicate; end
+    class Equals < ComparisonPredicate
+      def operator
+        '='
+      end
+    end
 
-    class NotEquals < ComparisonPredicate; end
+    class NotEquals < ComparisonPredicate
+      def operator
+        '<>'
+      end
+    end
 
     class Function < Node
       attr_reader :name, :arguments
@@ -232,25 +361,11 @@ module SQLParser
         @name = name
         @arguments = Array(arguments)
       end
-    end
 
-    class Aggregate < Node
-      attr_reader :column
-
-      def initialize(column)
-        @column = column
+      def to_sql
+        "#{name}(#{arguments.map { |node| node.to_sql }.join(', ')})"
       end
     end
-
-    class Sum < Aggregate; end
-
-    class Minimum < Aggregate; end
-
-    class Maximum < Aggregate; end
-
-    class Average < Aggregate; end
-
-    class Count < Aggregate; end
 
     class JoinedTable < Node
       attr_reader :left, :right
@@ -261,7 +376,11 @@ module SQLParser
       end
     end
 
-    class CrossJoin < JoinedTable; end
+    class CrossJoin < JoinedTable
+      def to_sql
+        "#{left.to_sql} CROSS JOIN #{right.to_sql}"
+      end
+    end
 
     class QualifiedJoin < JoinedTable
       attr_reader :search_condition
@@ -270,21 +389,53 @@ module SQLParser
         super(left, right)
         @search_condition = search_condition
       end
+
+      def to_sql
+        "#{left.to_sql} #{join_type} JOIN #{right.to_sql} #{search_condition.to_sql}"
+      end
     end
 
-    class InnerJoin < QualifiedJoin; end
+    class InnerJoin < QualifiedJoin
+      def join_type
+        'INNER'
+      end
+    end
 
-    class LeftJoin < QualifiedJoin; end
+    class LeftJoin < QualifiedJoin
+      def join_type
+        'LEFT'
+      end
+    end
 
-    class LeftOuterJoin < QualifiedJoin; end
+    class LeftOuterJoin < QualifiedJoin
+      def join_type
+        'LEFT OUTER'
+      end
+    end
 
-    class RightJoin < QualifiedJoin; end
+    class RightJoin < QualifiedJoin
+      def join_type
+        'RIGHT'
+      end
+    end
 
-    class RightOuterJoin < QualifiedJoin; end
+    class RightOuterJoin < QualifiedJoin
+      def join_type
+        'RIGHT OUTER'
+      end
+    end
 
-    class FullJoin < QualifiedJoin; end
+    class FullJoin < QualifiedJoin
+      def join_type
+        'FULL'
+      end
+    end
 
-    class FullOuterJoin < QualifiedJoin; end
+    class FullOuterJoin < QualifiedJoin
+      def join_type
+        'FULL OUTER'
+      end
+    end
 
     class QualifiedColumn < Node
       attr_reader :table, :column
@@ -293,6 +444,10 @@ module SQLParser
         @table = table
         @column = column
       end
+
+      def to_sql
+        "#{table.to_sql}.#{column.to_sql}"
+      end
     end
 
     class Identifier < Node
@@ -300,6 +455,10 @@ module SQLParser
 
       def initialize(name)
         @name = name
+      end
+
+      def to_sql
+        "`#{name}`"
       end
     end
 
@@ -314,6 +473,10 @@ module SQLParser
         @value = value
         @column = column
       end
+
+      def to_sql
+        "#{value.to_sql} AS #{column.to_sql}"
+      end
     end
 
     class Arithmetic < Node
@@ -323,15 +486,35 @@ module SQLParser
         @left = left
         @right = right
       end
+
+      def to_sql
+        "(#{left.to_sql} #{operator} #{right.to_sql})"
+      end
     end
 
-    class Multiply < Arithmetic; end
+    class Multiply < Arithmetic
+      def operator
+        '*'
+      end
+    end
 
-    class Divide < Arithmetic; end
+    class Divide < Arithmetic
+      def operator
+        '/'
+      end
+    end
 
-    class Add < Arithmetic; end
+    class Add < Arithmetic
+      def operator
+        '+'
+      end
+    end
 
-    class Subtract < Arithmetic; end
+    class Subtract < Arithmetic
+      def operator
+        '-'
+      end
+    end
 
     class Unary < Node
       attr_reader :value
@@ -341,17 +524,41 @@ module SQLParser
       end
     end
 
-    class Not < Unary; end
+    class Not < Unary
+      def to_sql
+        "NOT #{value.to_sql}"
+      end
+    end
 
-    class UnaryPlus < Unary; end
+    class UnaryPlus < Unary
+      def to_sql
+        "+#{value.to_sql}"
+      end
+    end
 
-    class UnaryMinus < Unary; end
+    class UnaryMinus < Unary
+      def to_sql
+        "-#{value.to_sql}"
+      end
+    end
 
-    class True < Node; end
+    class True < Node
+      def to_sql
+        'TRUE'
+      end
+    end
 
-    class False < Node; end
+    class False < Node
+      def to_sql
+        'FALSE'
+      end
+    end
 
-    class Null < Node; end
+    class Null < Node
+      def to_sql
+        'NULL'
+      end
+    end
 
     class Literal < Node
       attr_reader :value
@@ -359,13 +566,35 @@ module SQLParser
       def initialize(value)
         @value = value
       end
+
+      def to_sql
+        value.to_s
+      end
+
+      protected
+
+      def escape(str)
+        str.gsub(/'/, "''")
+      end
     end
 
-    class DateTime < Literal; end
+    class DateTime < Literal
+      def to_sql
+        "'%s'" % escape(value.strftime('%Y-%m-%d %H:%M:%S'))
+      end
+    end
 
-    class Date < Literal; end
+    class Date < Literal
+      def to_sql
+        "DATE '%s'" % escape(value.strftime('%Y-%m-%d'))
+      end
+    end
 
-    class String < Literal; end
+    class String < Literal
+      def to_sql
+        "'%s'" % escape(value)
+      end
+    end
 
     class ApproximateFloat < Node
       attr_reader :mantissa, :exponent
@@ -373,6 +602,10 @@ module SQLParser
       def initialize(mantissa, exponent)
         @mantissa = mantissa
         @exponent = exponent
+      end
+
+      def to_sql
+        "#{mantissa.to_sql}E#{exponent.to_sql}"
       end
     end
 

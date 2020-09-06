@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir.glob('lib/**/*')
 
-  s.add_runtime_dependency 'racc', '1.4.14'
+  s.add_runtime_dependency 'racc', '1.4.16'
   s.add_development_dependency 'test-unit'
   s.add_development_dependency 'rexical', '1.0.5'
   s.add_development_dependency 'rake'
